@@ -30,6 +30,10 @@ gss_class_tbl <-
     supervisor = !is.na(yousup), # supervisor?
     real_income = realrinc, # respondent real income, base = 1986,
     
+    class_pos = ifelse(self_employed & supervisor, "capitalist",
+                       ifelse(!self_employed & supervisor, "manager",
+                       ifelse(self_employed & !supervisor, "petty_bourgeois",
+                       "worker"))),
     
      
     # SUPPORT FOR SOCIAL SPENDING
@@ -46,8 +50,6 @@ gss_class_tbl <-
     state_highways_bridges_support = natroad, # highways and bridges
     state_social_security_support = natsoc, # social security
     
-    
-     
     # SUPPORT FOR REDISTRIBUTION
     # following variables assess whether the respondent feels we are
     # spending either too much, too little, or about the right amount on
@@ -58,25 +60,12 @@ gss_class_tbl <-
     # differences between rich and poor, and a score of 7 meaning that the
     # government should not concern itself with reducing income 
     # differences
-    state_economic_redistribution_support = eqwlth
+    state_economic_redistribution_support = eqwlth,
   )
 
-
-ggplot(data = gss_class_tbl) +
-  geom_smooth(mapping = aes(x = real_income, 
-                            y = state_economic_redistribution_support))
-
-# relationship between self-employment and support for redistribution
-ggplot(data = gss_class_tbl) +
-  geom_boxplot(mapping = aes(x = self_employed,
-                         y = state_economic_redistribution_support))
-
-# relationship between supervisor status and support for redistribution
-ggplot(data = gss_class_tbl) +
-  geom_boxplot(mapping = aes(x = supervisor,
-                             y = state_economic_redistribution_support))
-
-# relationship between supervisor status and support for racial redistribution
-ggplot(data = gss_class_tbl) +
-  geom_smooth(mapping = aes(x = real_income,
-                            y = state_racial_redistribution_support))
+# relationship between income and economic redistribution support
+ggplot(gss_class_tbl) +
+  geom_boxplot(aes(real_income, state_economic_redistribution_support, 
+                   group = cut_width(real_income, 25000)))
+ggplot(gss_class_tbl) +
+  geom_boxplot(aes(class_pos, state_economic_redistribution_support))
